@@ -229,4 +229,56 @@ describe('DoCal', function() {
 			});
 		});
 	});
+
+	describe('events', function() {
+		it('calls a "selected" callback when a day is clicked', function() {
+			var daySelectedSpy = jasmine.createSpy('day selected');
+			$('#jasmine_content').arCal({
+				selected: daySelectedSpy,
+				date: new Date('2/29/2012'),
+				day: {
+					tag: 'div',
+					dataSelector: 'data-day'
+				}
+			});
+
+			$('#jasmine_content div[data-day="2012-2-1"]').click();
+
+			expect(daySelectedSpy).toHaveBeenCalledWith('2012-2-1');
+		});
+
+		it('calls the "selected" callback with a range of dates if "enableRange" is set to true', function() {
+			var daySelectedSpy = jasmine.createSpy('day selected');
+			$('#jasmine_content').arCal({
+				selected: daySelectedSpy,
+				enableRange: true,
+				date: new Date('2/29/2012'),
+				day: {
+					tag: 'div',
+					dataSelector: 'data-day'
+				}
+			});
+
+			// simulate selecting a range
+			$('#jasmine_content div[data-day="2012-2-1"]').click();
+
+			expect(daySelectedSpy).not.toHaveBeenCalled();
+
+			$('#jasmine_content div[data-day="2012-2-24"]').click();
+
+			expect(daySelectedSpy).toHaveBeenCalledWith({start: '2012-2-1', end: '2012-2-24'});
+
+			// reset the spy so we can try again
+			daySelectedSpy.reset();
+
+			// simulate selecting a range a second time
+			$('#jasmine_content div[data-day="2012-2-14"]').click();
+
+			expect(daySelectedSpy).not.toHaveBeenCalled();
+
+			$('#jasmine_content div[data-day="2012-2-29"]').click();
+
+			expect(daySelectedSpy).toHaveBeenCalledWith({start: '2012-2-14', end: '2012-2-29'});
+		});
+	});
 });

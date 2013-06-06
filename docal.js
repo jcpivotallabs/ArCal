@@ -6,6 +6,7 @@
 		options.date = options.date || new Date();
 		options.tag = options.tag || 'div';
 		options.class = options.class || 'ar-cal';
+		options.enableRange = options.enableRange || false;
 
 		var $arCalEl = createElement(options.tag, options.class);
 
@@ -33,7 +34,34 @@
 
 		$arCalEl.append($generatedHTML);
 		this.append($arCalEl);
+
+		setupCallbacks(this);
 	};
+
+	function setupCallbacks(ctx) {
+		ctx.find(options.day.tag + '.'+ options.day.class + '[' + options.day.dataSelector + ']').on('click', function(e) {
+			var selectedValue = $(e.target).data(options.day.dataSelector.replace('data-', ''));
+
+			if(options.enableRange) {
+				handleRangeClick(ctx, selectedValue);
+			} else {
+				options.selected(selectedValue);
+			}
+		});
+	}
+
+	function handleRangeClick(ctx, selectedValue) {
+		var hiddenInput = ctx.find('input[type=hidden][name="ar-cal-range-selection-temporary-store"]').first();
+		if(hiddenInput.length > 0) {
+			options.selected({
+				start: hiddenInput.val(),
+				end: selectedValue
+			});
+			hiddenInput.remove();
+		} else {
+			ctx.append('<input type="hidden" value="'+ selectedValue +'" name="ar-cal-range-selection-temporary-store" />')
+		}
+	}
 
 	function createElement(tag, className, dataSelector) {
 		var $element = $('<'+ tag +'>');

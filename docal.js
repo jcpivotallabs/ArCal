@@ -41,13 +41,13 @@
 	function setupCallbacks(ctx) {
 		options.day.selectedClass = options.day.selectedClass || 'selected';
 		ctx.find(options.day.tag + '.'+ options.day.class + '[' + options.day.dataSelector + ']').on('click', function(e) {
-			var selectedValue = $(e.target).data(options.day.dataSelector.replace('data-', ''));
+			var selectedValue = $(this).data(options.day.dataSelector.replace('data-', ''));
 
 			if(options.enableRange) {
 				handleRangeClick(ctx, selectedValue);
 			} else {
 				options.selected(selectedValue);
-				$(e.target).addClass(options.day.selectedClass);
+				$(this).addClass(options.day.selectedClass);
 			}
 		});
 	}
@@ -65,6 +65,8 @@
 			}
 			options.selected(rangeSelectedEventObject);
 			hiddenInput.remove();
+
+			ctx.find(options.day.tag + '.'+ options.day.class + '[' + options.day.dataSelector + ']').removeClass(options.day.selectedClass);
 
 			// TODO clean this up
 			var elements = $(options.day.tag + '.'+ options.day.class + '[' + options.day.dataSelector + ']');

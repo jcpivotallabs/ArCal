@@ -303,10 +303,9 @@ describe('DoCal', function() {
 
 				expect(daySelectedSpy).toHaveBeenCalledWith({start: '2012-2-1', end: '2012-2-24'});
 
-				// reset the spy so we can try again
 				daySelectedSpy.reset();
 
-				// simulate selecting a range a second time
+				// simulate selecting another
 				$('#jasmine_content div[data-day="2012-2-14"]').click();
 
 				expect(daySelectedSpy).not.toHaveBeenCalled();
@@ -376,6 +375,38 @@ describe('DoCal', function() {
 				expect($('#jasmine_content div[data-day="2012-2-1"]').hasClass('yup-this-day-plz')).toEqual(true);
 				expect($('#jasmine_content div[data-day="2012-2-24"]').hasClass('yup-this-day-plz')).toEqual(true);
 				expect($('#jasmine_content div.a-day.yup-this-day-plz').length).toEqual(24);
+			});
+
+			it('removes the selected class from the old range if a new one is selected', function() {
+				$('#jasmine_content').arCal({
+					selected: $.noop,
+					enableRange: true,
+					date: new Date('2/29/2012'),
+					day: {
+						tag: 'div',
+						class: 'a-day',
+						dataSelector: 'data-day',
+						selectedClass: 'yup-this-day-plz'
+					}
+				});
+
+				$('#jasmine_content div[data-day="2012-2-24"]').click();
+				$('#jasmine_content div[data-day="2012-2-1"]').click();
+
+				expect($('#jasmine_content div[data-day="2012-2-1"]').hasClass('yup-this-day-plz')).toEqual(true);
+				expect($('#jasmine_content div[data-day="2012-2-24"]').hasClass('yup-this-day-plz')).toEqual(true);
+				expect($('#jasmine_content div.a-day.yup-this-day-plz').length).toEqual(24);
+
+				$('#jasmine_content div[data-day="2012-2-25"]').click();
+				$('#jasmine_content div[data-day="2012-2-29"]').click();
+
+				expect($('#jasmine_content div[data-day="2012-2-1"]').hasClass('yup-this-day-plz')).toEqual(false);
+				expect($('#jasmine_content div[data-day="2012-2-24"]').hasClass('yup-this-day-plz')).toEqual(false);
+
+				expect($('#jasmine_content div[data-day="2012-2-25"]').hasClass('yup-this-day-plz')).toEqual(true);
+				expect($('#jasmine_content div[data-day="2012-2-29"]').hasClass('yup-this-day-plz')).toEqual(true);
+
+				expect($('#jasmine_content div.a-day.yup-this-day-plz').length).toEqual(5);
 			});
 		});
 	});

@@ -1,5 +1,4 @@
-ArCal v0.2
-=====
+# ArCal v0.2 #
 
 The last jQuery calendar you'll ever need.
 
@@ -15,8 +14,7 @@ My thanks to:
 * [Pivotal Labs](http://www.pivotallabs.com)
 * Everyone who has ever made a calendar plugin that I've used
 
-To Do
-----
+## To Do ##
 
 Note: This is NOT a complete list.
 
@@ -33,9 +31,9 @@ Note: This is NOT a complete list.
   * Controls to browse through days/weeks/months/years
 
 
-Interface
-----
+## Interface ##
 
+### Markup ###
 If you run this:
 
     $('#my_calendar_container').arCal();
@@ -110,3 +108,28 @@ you get markup that looks like this:
 Notice that in the second example, I've set the date explicity to February 29, 2012. I've also specified the exact markup I want to render a day, a week, and a month.
 
 If you only want to render a week, you can pass the string 'none' to the month option instead of a hash. If you only want to render a day, you can pass the string 'none' to the week option.
+
+### Events ###
+
+Initializing a calendar to handle selecting a day:
+
+    $('#my_calendar_container').arCal({
+      selected: myDaySelectionCallbackFunction,
+      day: {
+        selectedClass: 'selected-date'
+      }
+    });
+
+In order to get any of the day selection to work, you will need to pass a selected callback function, even if it's a no-op. When a day is clicked, your callback function will be called, with a string of the day selected (in the format 'YYYY-M-D') as the argument. Either a default class of "selected" or the custom selectedClass you pass will be added to the day.
+
+Initializing a calendar to handle selecting a range of days:
+
+    $('#my_calendar_container').arCal({
+      selected: myDaySelectionCallbackFunction,
+      enableRange: true,
+      day: {
+        selectedClass: 'selected-date'
+      }
+    });
+
+The first day you click will not fire any events or add a class. The second day you click will then fire your callback and add the "selected" class (or your custom selectedClass) to all the days in the range.

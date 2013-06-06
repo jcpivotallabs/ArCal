@@ -52,6 +52,7 @@
 		options.month.dataSelector = options.month.dataSelector || 'data-calendar-month';
 
 		var $monthEl = createElement(options.month.tag, options.month.class, options.month.dataSelector);
+		$monthEl.attr(options.month.dataSelector, date.getMonth() + 1);
 		$monthEl.append(getWeeks(date));
 		return $monthEl;
 	}
@@ -103,7 +104,7 @@
 		var $dayEl = createElement(options.day.tag, options.day.class, options.day.dataSelector);
 
 		$dayEl.attr(options.day.dataSelector, formatDateData(date));
-		$dayEl.append('<span>'+ date.getDate() +'</span>')
+		$dayEl.append('<span>'+ date.getDate() +'</span>');
 		return $dayEl;
 	}
 

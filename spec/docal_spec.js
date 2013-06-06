@@ -93,7 +93,7 @@ describe('DoCal', function() {
 				expect($('#spec_cal div.super-day').length).toEqual(1);
 			});
 
-			it('should render with the correct data attribute if passed', function() {
+			it('should render with the correct data attribute with a value of the date', function() {
 				$('#jasmine_content').arCal({
 					id: 'spec_cal',
 					date: new Date('2/29/2012'),
@@ -105,6 +105,7 @@ describe('DoCal', function() {
 				});
 
 				expect($('#spec_cal div[data-a-new-day]').length).toEqual(1);
+				expect($('#spec_cal div[data-a-new-day]').data('a-new-day')).toEqual('2012-2-29');
 			});
 		});
 
@@ -214,7 +215,7 @@ describe('DoCal', function() {
 				expect($('#spec_cal div.a-busy-month').length).toEqual(1);
 			});
 
-			it('should render with the correct data attribute if passed', function() {
+			it('should render with the correct data attribute with a value of the month', function() {
 				$('#jasmine_content').arCal({
 					id: 'spec_cal',
 					date: new Date('2/29/2012'),
@@ -224,6 +225,7 @@ describe('DoCal', function() {
 				});
 
 				expect($('#spec_cal div[data-show-me-a-month]').length).toEqual(1);
+				expect($('#spec_cal div[data-show-me-a-month]').data('show-me-a-month')).toEqual(2);
 			});
 		});
 	});

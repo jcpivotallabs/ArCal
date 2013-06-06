@@ -231,54 +231,152 @@ describe('DoCal', function() {
 	});
 
 	describe('events', function() {
-		it('calls a "selected" callback when a day is clicked', function() {
-			var daySelectedSpy = jasmine.createSpy('day selected');
-			$('#jasmine_content').arCal({
-				selected: daySelectedSpy,
-				date: new Date('2/29/2012'),
-				day: {
-					tag: 'div',
-					dataSelector: 'data-day'
-				}
+		describe('selecting a single day', function() {
+			it('calls a "selected" callback when a day is clicked', function() {
+				var daySelectedSpy = jasmine.createSpy('day selected');
+				$('#jasmine_content').arCal({
+					selected: daySelectedSpy,
+					date: new Date('2/29/2012'),
+					day: {
+						tag: 'div',
+						dataSelector: 'data-day'
+					}
+				});
+
+				$('#jasmine_content div[data-day="2012-2-1"]').click();
+
+				expect(daySelectedSpy).toHaveBeenCalledWith('2012-2-1');
 			});
 
-			$('#jasmine_content div[data-day="2012-2-1"]').click();
+			it('adds a "selected" class to the day', function() {
+				$('#jasmine_content').arCal({
+					selected: $.noop,
+					date: new Date('2/29/2012'),
+					day: {
+						tag: 'div',
+						dataSelector: 'data-day'
+					}
+				});
 
-			expect(daySelectedSpy).toHaveBeenCalledWith('2012-2-1');
+				$('#jasmine_content div[data-day="2012-2-1"]').click();
+
+				expect($('#jasmine_content div[data-day="2012-2-1"]').hasClass('selected')).toEqual(true);
+			});
+
+			it('adds a custom class if passed in the day options', function() {
+				$('#jasmine_content').arCal({
+					selected: $.noop,
+					date: new Date('2/29/2012'),
+					day: {
+						tag: 'div',
+						dataSelector: 'data-day',
+						selectedClass: 'oh-yeah-day-selected'
+					}
+				});
+
+				$('#jasmine_content div[data-day="2012-2-1"]').click();
+
+				expect($('#jasmine_content div[data-day="2012-2-1"]').hasClass('oh-yeah-day-selected')).toEqual(true);
+
+			});
 		});
 
-		it('calls the "selected" callback with a range of dates if "enableRange" is set to true', function() {
-			var daySelectedSpy = jasmine.createSpy('day selected');
-			$('#jasmine_content').arCal({
-				selected: daySelectedSpy,
-				enableRange: true,
-				date: new Date('2/29/2012'),
-				day: {
-					tag: 'div',
-					dataSelector: 'data-day'
-				}
+		describe('selecting a range', function() {
+			it('calls the "selected" callback with a range of dates if "enableRange" is set to true', function() {
+				var daySelectedSpy = jasmine.createSpy('day selected');
+				$('#jasmine_content').arCal({
+					selected: daySelectedSpy,
+					enableRange: true,
+					date: new Date('2/29/2012'),
+					day: {
+						tag: 'div',
+						dataSelector: 'data-day'
+					}
+				});
+
+				// simulate selecting a range
+				$('#jasmine_content div[data-day="2012-2-1"]').click();
+
+				expect(daySelectedSpy).not.toHaveBeenCalled();
+
+				$('#jasmine_content div[data-day="2012-2-24"]').click();
+
+				expect(daySelectedSpy).toHaveBeenCalledWith({start: '2012-2-1', end: '2012-2-24'});
+
+				// reset the spy so we can try again
+				daySelectedSpy.reset();
+
+				// simulate selecting a range a second time
+				$('#jasmine_content div[data-day="2012-2-14"]').click();
+
+				expect(daySelectedSpy).not.toHaveBeenCalled();
+
+				$('#jasmine_content div[data-day="2012-2-29"]').click();
+
+				expect(daySelectedSpy).toHaveBeenCalledWith({start: '2012-2-14', end: '2012-2-29'});
 			});
 
-			// simulate selecting a range
-			$('#jasmine_content div[data-day="2012-2-1"]').click();
+			it('calls the "selected" callback with the range in the correct order', function() {
+				var daySelectedSpy = jasmine.createSpy('day selected');
+				$('#jasmine_content').arCal({
+					selected: daySelectedSpy,
+					enableRange: true,
+					date: new Date('2/29/2012'),
+					day: {
+						tag: 'div',
+						dataSelector: 'data-day'
+					}
+				});
 
-			expect(daySelectedSpy).not.toHaveBeenCalled();
+				$('#jasmine_content div[data-day="2012-2-24"]').click();
 
-			$('#jasmine_content div[data-day="2012-2-24"]').click();
+				expect(daySelectedSpy).not.toHaveBeenCalled();
 
-			expect(daySelectedSpy).toHaveBeenCalledWith({start: '2012-2-1', end: '2012-2-24'});
+				$('#jasmine_content div[data-day="2012-2-1"]').click();
 
-			// reset the spy so we can try again
-			daySelectedSpy.reset();
+				expect(daySelectedSpy).toHaveBeenCalledWith({start: '2012-2-1', end: '2012-2-24'});
+			});
 
-			// simulate selecting a range a second time
-			$('#jasmine_content div[data-day="2012-2-14"]').click();
+			it('adds a "selected" class to all days in the range', function() {
+				$('#jasmine_content').arCal({
+					selected: $.noop,
+					enableRange: true,
+					date: new Date('2/29/2012'),
+					day: {
+						tag: 'div',
+						class: 'a-day',
+						dataSelector: 'data-day'
+					}
+				});
 
-			expect(daySelectedSpy).not.toHaveBeenCalled();
+				$('#jasmine_content div[data-day="2012-2-24"]').click();
+				$('#jasmine_content div[data-day="2012-2-1"]').click();
 
-			$('#jasmine_content div[data-day="2012-2-29"]').click();
+				expect($('#jasmine_content div[data-day="2012-2-1"]').hasClass('selected')).toEqual(true);
+				expect($('#jasmine_content div[data-day="2012-2-24"]').hasClass('selected')).toEqual(true);
+				expect($('#jasmine_content div.a-day.selected').length).toEqual(24);
+			});
 
-			expect(daySelectedSpy).toHaveBeenCalledWith({start: '2012-2-14', end: '2012-2-29'});
+			it('adds a custom selected class to all days in the range if passed', function() {
+				$('#jasmine_content').arCal({
+					selected: $.noop,
+					enableRange: true,
+					date: new Date('2/29/2012'),
+					day: {
+						tag: 'div',
+						class: 'a-day',
+						dataSelector: 'data-day',
+						selectedClass: 'yup-this-day-plz'
+					}
+				});
+
+				$('#jasmine_content div[data-day="2012-2-24"]').click();
+				$('#jasmine_content div[data-day="2012-2-1"]').click();
+
+				expect($('#jasmine_content div[data-day="2012-2-1"]').hasClass('yup-this-day-plz')).toEqual(true);
+				expect($('#jasmine_content div[data-day="2012-2-24"]').hasClass('yup-this-day-plz')).toEqual(true);
+				expect($('#jasmine_content div.a-day.yup-this-day-plz').length).toEqual(24);
+			});
 		});
 	});
 });

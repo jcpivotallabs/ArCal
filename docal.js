@@ -39,6 +39,7 @@
 	};
 
 	function setupCallbacks(ctx) {
+		options.day.selectedClass = options.day.selectedClass || 'selected';
 		ctx.find(options.day.tag + '.'+ options.day.class + '[' + options.day.dataSelector + ']').on('click', function(e) {
 			var selectedValue = $(e.target).data(options.day.dataSelector.replace('data-', ''));
 
@@ -46,6 +47,7 @@
 				handleRangeClick(ctx, selectedValue);
 			} else {
 				options.selected(selectedValue);
+				$(e.target).addClass(options.day.selectedClass);
 			}
 		});
 	}
@@ -53,11 +55,37 @@
 	function handleRangeClick(ctx, selectedValue) {
 		var hiddenInput = ctx.find('input[type=hidden][name="ar-cal-range-selection-temporary-store"]').first();
 		if(hiddenInput.length > 0) {
-			options.selected({
-				start: hiddenInput.val(),
-				end: selectedValue
-			});
+			var rangeSelectedEventObject = {};
+			if(new Date(hiddenInput.val()) > new Date(selectedValue)) {
+				rangeSelectedEventObject.start = selectedValue;
+				rangeSelectedEventObject.end = hiddenInput.val();
+			} else {
+				rangeSelectedEventObject.start = hiddenInput.val();
+				rangeSelectedEventObject.end = selectedValue;
+			}
+			options.selected(rangeSelectedEventObject);
 			hiddenInput.remove();
+
+			// TODO clean this up
+			var elements = $(options.day.tag + '.'+ options.day.class + '[' + options.day.dataSelector + ']');
+			var start = 0;
+			var end = elements.length;
+			var endFound = false;
+			var pos = 0;
+			while(!endFound) {
+				var element = elements[pos];
+				if($(element).attr(options.day.dataSelector) == rangeSelectedEventObject.start) {
+					start = pos;
+				} else if($(element).attr(options.day.dataSelector) == rangeSelectedEventObject.end) {
+					end = pos;
+					endFound = true;
+				}
+				pos++;
+			}
+
+			for(var i = start; i <= end; i++) {
+				$(elements[i]).addClass(options.day.selectedClass);
+			}
 		} else {
 			ctx.append('<input type="hidden" value="'+ selectedValue +'" name="ar-cal-range-selection-temporary-store" />')
 		}

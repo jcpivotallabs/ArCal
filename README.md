@@ -1,4 +1,4 @@
-# ArCal v0.2 #
+# ArCal v0.3 #
 
 The last jQuery calendar you'll ever need.
 
@@ -19,14 +19,19 @@ My thanks to:
 Note: This is NOT a complete list.
 
 * Improve markup generation/customization
-  * Styling current date, selected date(s)
-  * More information about elements in markup (data attributes on weeks, months)
+  * More information about elements in markup
+      * <del>current date class</del>
+      * <del>selected date class</del>
+      * <del>day of the week and weekend/weekday classes on days</del>
+      * data attribute values on months
+      * data attribute values on weeks
 * Add support for generating markup for years
 * Allow for passing of templates
 * Add easy event handling
-  * Selecting dates one at a time
+  * <del>Selecting dates one at a time</del>
+  * <del>Range select</del>
   * Drag-to-select
-  * Unselect
+  * <del>Unselect</del>
 * Add easy calendar control implementation
   * Controls to browse through days/weeks/months/years
 
@@ -36,25 +41,25 @@ Note: This is NOT a complete list.
 ### Markup ###
 If you run this:
 
-    $('#my_calendar_container').arCal();
+    $('#my_calendar_container').arCal(); // run on May 3rd, 2013
 
 you get markup that looks like this:
 
     <div class="ar-cal">
       <div class="month" data-calendar-month="data-calendar-month">
         <div class="week" data-calendar-week="data-calendar-week">
-          <div class="day" data-calendar-day="2013-4-28"><span>28</span></div>
-          <div class="day" data-calendar-day="2013-4-29"><span>29</span></div>
-          <div class="day" data-calendar-day="2013-4-30"><span>30</span></div>
-          <div class="day" data-calendar-day="2013-5-1"><span>1</span></div>
-          <div class="day" data-calendar-day="2013-5-2"><span>2</span></div>
-          <div class="day" data-calendar-day="2013-5-3"><span>3</span></div>
-          <div class="day" data-calendar-day="2013-5-4"><span>4</span></div>
+          <div class="day ar-sunday ar-weekend" data-calendar-day="2013-4-28"><span>28</span></div>
+          <div class="day ar-monday ar-weekday" data-calendar-day="2013-4-29"><span>29</span></div>
+          <div class="day ar-tuesday ar-weekday" data-calendar-day="2013-4-30"><span>30</span></div>
+          <div class="day ar-wednesday ar-weekday" data-calendar-day="2013-5-1"><span>1</span></div>
+          <div class="day ar-thursday ar-weekday" data-calendar-day="2013-5-2"><span>2</span></div>
+          <div class="day ar-friday ar-weekday ar-today" data-calendar-day="2013-5-3"><span>3</span></div>
+          <div class="day ar-saturday ar-weekend" data-calendar-day="2013-5-4"><span>4</span></div>
         </div>
         <div class="week" data-calendar-week="data-calendar-week">
-          <div class="day" data-calendar-day="2013-5-5"><span>5</span></div>
-          <div class="day" data-calendar-day="2013-5-6"><span>6</span></div>
-          <div class="day" data-calendar-day="2013-5-7"><span>7</span></div>
+          <div class="day ar-sunday ar-weekend" data-calendar-day="2013-5-5"><span>5</span></div>
+          <div class="day ar-monday ar-weekday" data-calendar-day="2013-5-6"><span>6</span></div>
+          <div class="day ar-tuesday ar-weekday" data-calendar-day="2013-5-7"><span>7</span></div>
           ......
         </div>
       </div>
@@ -68,17 +73,17 @@ Want something completely different? If you run this:
       date: '2/29/2012',
       day: {
         tag: 'td',
-        class: 'a-day',
+        class: 'my-day-class',
         dataSelector: 'data-gimme-a-day'
       },
       week: {
         tag: 'tr',
-        class: 'a-week',
+        class: 'my-week-class',
         dataSelector: 'data-gimme-a-week'
       },
       month: {
         tag: 'tbody',
-        class: 'a-month',
+        class: 'my-month-class',
         dataSelector: 'data-gimme-a-month'
       }
     });
@@ -86,20 +91,20 @@ Want something completely different? If you run this:
 you get markup that looks like this:
 
     <table class="ar-cal" id="arcal_is_cool">
-      <tbody class="a-month" data-gimme-a-month="data-gimme-a-month">
-        <tr class="a-week" data-gimme-a-week="data-gimme-a-week">
-          <td class="a-day" data-gimme-a-day="2012-1-29"><span>29</span></td>
-          <td class="a-day" data-gimme-a-day="2012-1-30"><span>30</span></td>
-          <td class="a-day" data-gimme-a-day="2012-1-31"><span>31</span></td>
-          <td class="a-day" data-gimme-a-day="2012-2-1"><span>1</span></td>
-          <td class="a-day" data-gimme-a-day="2012-2-2"><span>2</span></td>
-          <td class="a-day" data-gimme-a-day="2012-2-3"><span>3</span></td>
-          <td class="a-day" data-gimme-a-day="2012-2-4"><span>4</span></td>
+      <tbody class="my-month-class" data-gimme-a-month="data-gimme-a-month">
+        <tr class="my-week-class" data-gimme-a-week="data-gimme-a-week">
+          <td class="my-day-class ar-sunday ar-weekend" data-gimme-a-day="2012-1-29"><span>29</span></td>
+          <td class="my-day-class ar-monday ar-weekday" data-gimme-a-day="2012-1-30"><span>30</span></td>
+          <td class="my-day-class ar-tuesday ar-weekday" data-gimme-a-day="2012-1-31"><span>31</span></td>
+          <td class="my-day-class ar-wednesday ar-weekday" data-gimme-a-day="2012-2-1"><span>1</span></td>
+          <td class="my-day-class ar-thursday ar-weekday" data-gimme-a-day="2012-2-2"><span>2</span></td>
+          <td class="my-day-class ar-friday ar-weekday" data-gimme-a-day="2012-2-3"><span>3</span></td>
+          <td class="my-day-class ar-saturday ar-weekend" data-gimme-a-day="2012-2-4"><span>4</span></td>
         </tr>
-        <tr class="a-week" data-gimme-a-week="data-gimme-a-week">
-          <td class="a-day" data-gimme-a-day="2012-2-5"><span>5</span></td>
-          <td class="a-day" data-gimme-a-day="2012-2-6"><span>6</span></td>
-          <td class="a-day" data-gimme-a-day="2012-2-7"><span>7</span></td>
+        <tr class="my-week-class" data-gimme-a-week="data-gimme-a-week">
+          <td class="my-day-class ar-sunday ar-weekend" data-gimme-a-day="2012-2-5"><span>5</span></td>
+          <td class="my-day-class ar-monday ar-weekday" data-gimme-a-day="2012-2-6"><span>6</span></td>
+          <td class="my-day-class ar-tuesday ar-weekday" data-gimme-a-day="2012-2-7"><span>7</span></td>
           ....
         </tr>
       </tbody>
@@ -114,22 +119,22 @@ If you only want to render a week, you can pass the string 'none' to the month o
 Initializing a calendar to handle selecting a day:
 
     $('#my_calendar_container').arCal({
-      selected: myDaySelectionCallbackFunction,
+      onChange: myDaySelectionCallbackFunction,
       day: {
         selectedClass: 'selected-date'
       }
     });
 
-In order to get any of the day selection to work, you will need to pass a selected callback function, even if it's a no-op. When a day is clicked, your callback function will be called, with a string of the day selected (in the format 'YYYY-M-D') as the argument. Either a default class of "selected" or the custom selectedClass you pass will be added to the day.
+When a day is clicked, your onChange callback function will be called, with an object of the format { start: STARTDATE, end: ENDDATE }, where STARTDATE and ENDDATE are strings of the days selected (in the format 'YYYY-M-D') as the argument. In the case above, STARTDATE and ENDDATE will both be the same value (unlike in the range case illustrated below). Either a default class of "selected" or the custom selectedClass you pass will be added to the day. Clicking a selected day again will unselect it, and call the callback with STARTDATE and ENDDATE set to null.
 
 Initializing a calendar to handle selecting a range of days:
 
     $('#my_calendar_container').arCal({
-      selected: myDaySelectionCallbackFunction,
+      onChange: myDaySelectionCallbackFunction,
       enableRange: true,
       day: {
         selectedClass: 'selected-date'
       }
     });
 
-The first day you click will not fire any events or add a class. The second day you click will then fire your callback and add the "selected" class (or your custom selectedClass) to all the days in the range.
+The first day you click will act like a single select. The second day you click will then fire your callback and add the "selected" class (or your custom selectedClass) to all the days in the range.

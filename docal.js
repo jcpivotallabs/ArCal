@@ -7,6 +7,7 @@
 		options.tag = options.tag || 'div';
 		options.class = options.class || 'ar-cal';
 		options.enableRange = options.enableRange || false;
+		options.onChange = options.onChange || $.noop;
 
 		var $arCalEl = createElement(options.tag, options.class);
 
@@ -36,72 +37,89 @@
 		this.append($arCalEl);
 
 		setupCallbacks(this);
+
+		return this;
 	};
 
 	function setupCallbacks(ctx) {
 		options.day.selectedClass = options.day.selectedClass || 'selected';
-		ctx.find(options.day.tag + '.'+ options.day.class + '[' + options.day.dataSelector + ']').on('click', function(e) {
-			var selectedValue = $(this).data(options.day.dataSelector.replace('data-', ''));
+		getCalendarDayElements(ctx).on('click', function(e) {
+			var selectedValue = getDateFromElement(this);
 
 			if(options.enableRange) {
-				handleRangeClick(ctx, selectedValue);
+				handleRangeClick(ctx, this, selectedValue);
 			} else {
-				options.selected(selectedValue);
-				$(this).addClass(options.day.selectedClass);
+				handleSingleClick(ctx, this, selectedValue);
 			}
 		});
 	}
 
-	function handleRangeClick(ctx, selectedValue) {
+	function handleSingleClick(ctx, selectedElement, selectedValue) {
+		if (!options.enableRange) {
+			var previouslySelectedDay = ctx.find('.' + options.day.selectedClass);
+			if (getDateFromElement(previouslySelectedDay) == selectedValue) {
+				clearSelectedClassesFromCalendar(ctx);
+				fireOnChange(null, null);
+				return;
+			}
+		}
+
+		clearSelectedClassesFromCalendar(ctx);
+		$(selectedElement).addClass(options.day.selectedClass);
+		fireOnChange(selectedValue, selectedValue);
+	}
+
+	function handleRangeClick(ctx, selectedElement, selectedValue) {
 		var hiddenInput = ctx.find('input[type=hidden][name="ar-cal-range-selection-temporary-store"]').first();
 		if(hiddenInput.length > 0) {
-			var rangeSelectedEventObject = {};
-			if(new Date(hiddenInput.val()) > new Date(selectedValue)) {
-				rangeSelectedEventObject.start = selectedValue;
-				rangeSelectedEventObject.end = hiddenInput.val();
-			} else {
-				rangeSelectedEventObject.start = hiddenInput.val();
-				rangeSelectedEventObject.end = selectedValue;
-			}
-			options.selected(rangeSelectedEventObject);
+			var rangeSelectedEventObject = fireOnChange(hiddenInput.val(), selectedValue);
+
 			hiddenInput.remove();
 
-			ctx.find(options.day.tag + '.'+ options.day.class + '[' + options.day.dataSelector + ']').removeClass(options.day.selectedClass);
+			clearSelectedClassesFromCalendar(ctx);
 
-			// TODO clean this up
-			var elements = $(options.day.tag + '.'+ options.day.class + '[' + options.day.dataSelector + ']');
-			var start = 0;
-			var end = elements.length;
-			var endFound = false;
-			var pos = 0;
-			while(!endFound) {
-				var element = elements[pos];
-				if($(element).attr(options.day.dataSelector) == rangeSelectedEventObject.start) {
-					start = pos;
-				} else if($(element).attr(options.day.dataSelector) == rangeSelectedEventObject.end) {
-					end = pos;
-					endFound = true;
-				}
-				pos++;
-			}
-
-			for(var i = start; i <= end; i++) {
-				$(elements[i]).addClass(options.day.selectedClass);
-			}
+			addSelectedRangeClasses(ctx, rangeSelectedEventObject);
 		} else {
-			ctx.append('<input type="hidden" value="'+ selectedValue +'" name="ar-cal-range-selection-temporary-store" />')
+			ctx.append('<input type="hidden" value="'+ selectedValue +'" name="ar-cal-range-selection-temporary-store" />');
+			handleSingleClick(ctx, selectedElement, selectedValue);
 		}
 	}
 
-	function createElement(tag, className, dataSelector) {
-		var $element = $('<'+ tag +'>');
-		$element.addClass(className);
+	function fireOnChange(value1, value2) {
+		var rangeSelectedEventObject = {};
+		if(new Date(value1) > new Date(value2)) {
+			rangeSelectedEventObject.start = value2;
+			rangeSelectedEventObject.end = value1;
+		} else {
+			rangeSelectedEventObject.start = value1;
+			rangeSelectedEventObject.end = value2;
+		}
+		options.onChange(rangeSelectedEventObject);
 
-		if(dataSelector) {
-			$element.attr(dataSelector, dataSelector);
+		return rangeSelectedEventObject;
+	}
+
+	// TODO clean this up
+	function addSelectedRangeClasses(ctx, rangeSelectedEventObject) {
+		var elements = getCalendarDayElements(ctx);
+		var start = 0;
+		var end = elements.length;
+		var endFound = false;
+		var pos = 0;
+		while(!endFound) {
+			var element = elements[pos];
+			if($(element).attr(options.day.dataSelector) == rangeSelectedEventObject.start) {
+				start = pos;
+			} else if($(element).attr(options.day.dataSelector) == rangeSelectedEventObject.end) {
+				end = pos;
+				endFound = true;
+			}
+			pos++;
 		}
 
-		return $element;
+		for(var i = start; i <= end; i++) {
+			$(elements[i]).addClass(options.day.selectedClass);
+		}
 	}
 
 	function getMonth(date) {
@@ -162,11 +180,53 @@
 		var $dayEl = createElement(options.day.tag, options.day.class, options.day.dataSelector);
 
 		$dayEl.attr(options.day.dataSelector, formatDateData(date));
+		$dayEl.addClass(getDayOfWeekClasses(date));
+
+		if(formatDateData(date) == formatDateData(new Date())) {
+			$dayEl.addClass('ar-today');
+		}
+
 		$dayEl.append('<span>'+ date.getDate() +'</span>');
 		return $dayEl;
 	}
 
+	function createElement(tag, className, dataSelector) {
+		var $element = $('<'+ tag +'>');
+		$element.addClass(className);
+
+		if(dataSelector) {
+			$element.attr(dataSelector, dataSelector);
+		}
+
+		return $element;
+	}
+
+	function getDayOfWeekClasses(date) {
+		switch(date.getDay()) {
+			case 0: return 'ar-sunday ar-weekend';
+			case 1: return 'ar-monday ar-weekday';
+			case 2: return 'ar-tuesday ar-weekday';
+			case 3: return 'ar-wednesday ar-weekday';
+			case 4: return 'ar-thursday ar-weekday';
+			case 5: return 'ar-friday ar-weekday';
+			case 6: return 'ar-saturday ar-weekend';
+		}
+		return '';
+	}
+
 	function formatDateData(date) {
 		return [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-');
+	}
+
+	function getCalendarDayElements(ctx) {
+		return ctx.find(options.day.tag + '.' + options.day.class + '[' + options.day.dataSelector + ']');
+	}
+
+	function clearSelectedClassesFromCalendar(ctx) {
+		getCalendarDayElements(ctx).removeClass(options.day.selectedClass);
+	}
+
+	function getDateFromElement(element) {
+		return $(element).data(options.day.dataSelector.replace('data-', ''));
 	}
 }(jQuery));

@@ -1,8 +1,4 @@
 describe('ArCal', function() {
-  afterEach(function() {
-    $('#jasmine_content').html('');
-  });
-
   describe('wiring and set up', function() {
     it('should be a jQuery plugin under .arCal()', function() {
       expect($().arCal).not.toBeUndefined();

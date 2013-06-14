@@ -12,7 +12,7 @@
 #
 src_files:
   - jquery.min.js
-  - docal.js
+  - arcal.js
 
 # stylesheets
 #
